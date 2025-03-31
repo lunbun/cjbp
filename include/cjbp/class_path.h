@@ -13,8 +13,16 @@ class ClassPath {
 public:
     virtual ~ClassPath() noexcept = default;
 
+    ClassPath(const ClassPath&) = delete;
+    ClassPath(ClassPath&&) = delete;
+    ClassPath& operator=(const ClassPath&) = delete;
+    ClassPath& operator=(ClassPath&&) = delete;
+
     // May return nullptr if the class is not found.
     virtual std::shared_ptr<std::istream> findClass(const std::string &name) = 0;
+
+protected:
+    ClassPath() = default;
 };
 
 class CompositeClassPath : public ClassPath {
