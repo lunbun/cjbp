@@ -24,6 +24,19 @@ public:
         attributes_(std::move(attributes)) { }
 
     CJBP_INLINE uint16_t accessFlags() const { return accessFlags_; }
+    CJBP_INLINE bool isPublic() const { return (this->accessFlags_ & 0x0001) != 0; }
+    CJBP_INLINE bool isPrivate() const { return (this->accessFlags_ & 0x0002) != 0; }
+    CJBP_INLINE bool isProtected() const { return (this->accessFlags_ & 0x0004) != 0; }
+    CJBP_INLINE bool isStatic() const { return (this->accessFlags_ & 0x0008) != 0; }
+    CJBP_INLINE bool isFinal() const { return (this->accessFlags_ & 0x0010) != 0; }
+    CJBP_INLINE bool isSynchronized() const { return (this->accessFlags_ & 0x0020) != 0; }
+    CJBP_INLINE bool isBridge() const { return (this->accessFlags_ & 0x0040) != 0; }
+    CJBP_INLINE bool isVarargs() const { return (this->accessFlags_ & 0x0080) != 0; }
+    CJBP_INLINE bool isNative() const { return (this->accessFlags_ & 0x0100) != 0; }
+    CJBP_INLINE bool isAbstract() const { return (this->accessFlags_ & 0x0400) != 0; }
+    CJBP_INLINE bool isStrict() const { return (this->accessFlags_ & 0x0800) != 0; }
+    CJBP_INLINE bool isSynthetic() const { return (this->accessFlags_ & 0x1000) != 0; }
+
     CJBP_INLINE const std::string &name() const { return this->name_; }
     CJBP_INLINE const std::string &type() const { return this->type_; }
     CJBP_INLINE const MethodDescriptor &descriptor() const { return this->descriptor_; }
