@@ -18,10 +18,11 @@ std::unique_ptr<FieldInfo> FieldInfo::read(std::istream &s, const ConstantPool &
 std::string FieldInfo::toString(const ConstantPool &constantPool) const {
     std::string result;
     for (const auto &attribute: this->attributes_) {
+        result += '\n';
         result += attribute->toString(constantPool);
     }
 
-    result = "Field: " + this->name_ + ' ' + this->type_ + '\n' + indent(result, 1);
+    result = "Field: " + this->name_ + ' ' + this->type_ + indent(result, 1) + '\n';
     return result;
 }
 
@@ -46,10 +47,11 @@ std::unique_ptr<MethodInfo> MethodInfo::read(std::istream &s, const ConstantPool
 std::string MethodInfo::toString(const ConstantPool &constantPool) const {
     std::string result;
     for (const auto &attribute : this->attributes_) {
+        result += '\n';
         result += attribute->toString(constantPool);
     }
 
-    result = "Method: " + this->name_ + ' ' + this->type_ + '\n' + indent(result, 1);
+    result = "Method: " + this->name_ + ' ' + this->type_ + indent(result, 1) + '\n';
     return result;
 }
 

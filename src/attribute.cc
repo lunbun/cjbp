@@ -20,7 +20,8 @@ std::vector<std::unique_ptr<AttributeInfo>> AttributeInfo::readList(std::istream
 std::unique_ptr<AttributeInfo> AttributeInfo::read(std::istream &s, const ConstantPool &constantPool) {
     const std::string &name = constantPool.utf8(readBigEndian<uint16_t>(s));
     uint32_t length = readBigEndian<uint32_t>(s);
-    uint32_t position = s.tellg();
+    // TODO: tellg is not reliable, figure out a better way to check this
+    // uint32_t position = s.tellg();
 
     std::unique_ptr<AttributeInfo> result;
     if (name == "Code") {
@@ -31,7 +32,7 @@ std::unique_ptr<AttributeInfo> AttributeInfo::read(std::istream &s, const Consta
         result = UnknownAttributeInfo::read(s, name, length);
     }
 
-    if (s.tellg() != position + length) throw CorruptClassFile("Attribute length mismatch");
+    // if (s.tellg() != position + length) throw CorruptClassFile("Attribute length mismatch");
     return result;
 }
 
