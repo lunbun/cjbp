@@ -1,6 +1,8 @@
 #include "cjbp/constant_pool.h"
 
+#include <optional>
 #include <algorithm>
+#include <sstream>
 
 #include "cjbp/exception.h"
 #include "stream_util.h"
@@ -130,12 +132,14 @@ public:
     std::string toString(const ConstantPool &constantPool) const override;
     CJBP_INLINE uint16_t classIndex() const { return this->classIndex_; }
     CJBP_INLINE uint16_t nameAndTypeIndex() const { return this->nameAndTypeIndex_; }
+    CJBP_INLINE const Descriptor &descriptor() const { return this->descriptor_.value(); }
 
     void postParse(const ConstantPool &constantPool) override;
 
 private:
     uint16_t classIndex_;
     uint16_t nameAndTypeIndex_;
+    std::optional<Descriptor> descriptor_;
 };
 
 class ConstantPool::MethodRefEntry : public Entry {
@@ -150,12 +154,14 @@ public:
     std::string toString(const ConstantPool &constantPool) const override;
     CJBP_INLINE uint16_t classIndex() const { return this->classIndex_; }
     CJBP_INLINE uint16_t nameAndTypeIndex() const { return this->nameAndTypeIndex_; }
+    CJBP_INLINE const MethodDescriptor &descriptor() const { return this->descriptor_.value(); }
 
     void postParse(const ConstantPool &constantPool) override;
 
 private:
     uint16_t classIndex_;
     uint16_t nameAndTypeIndex_;
+    std::optional<MethodDescriptor> descriptor_;
 };
 
 class ConstantPool::InterfaceMethodRefEntry : public Entry {
@@ -170,12 +176,14 @@ public:
     std::string toString(const ConstantPool &constantPool) const override;
     CJBP_INLINE uint16_t classIndex() const { return this->classIndex_; }
     CJBP_INLINE uint16_t nameAndTypeIndex() const { return this->nameAndTypeIndex_; }
+    CJBP_INLINE const MethodDescriptor &descriptor() const { return this->descriptor_.value(); }
 
     void postParse(const ConstantPool &constantPool) override;
 
 private:
     uint16_t classIndex_;
     uint16_t nameAndTypeIndex_;
+    std::optional<MethodDescriptor> descriptor_;
 };
 
 class ConstantPool::NameAndTypeEntry : public Entry {
@@ -280,17 +288,20 @@ void ConstantPool::StringEntry::postParse(const ConstantPool &constantPool) {
 void ConstantPool::FieldRefEntry::postParse(const ConstantPool &constantPool) {
     if (!constantPool.isValidEntry(this->classIndex_, Tag::Class)) throw CorruptClassFile("Invalid field ref class index");
     if (!constantPool.isValidEntry(this->nameAndTypeIndex_, Tag::NameAndType)) throw CorruptClassFile("Invalid field ref name and type index");
+    this->descriptor_ = Descriptor::read(constantPool.type(this->nameAndTypeIndex_));
 }
 
 void ConstantPool::MethodRefEntry::postParse(const ConstantPool &constantPool) {
     if (!constantPool.isValidEntry(this->classIndex_, Tag::Class)) throw CorruptClassFile("Invalid method ref class index");
     if (!constantPool.isValidEntry(this->nameAndTypeIndex_, Tag::NameAndType)) throw CorruptClassFile("Invalid method ref name and type index");
+    this->descriptor_ = MethodDescriptor::read(constantPool.type(this->nameAndTypeIndex_));
 }
 
 void ConstantPool::InterfaceMethodRefEntry::postParse(const ConstantPool &constantPool) {
     if (!constantPool.isValidEntry(this->classIndex_, Tag::Class)) throw CorruptClassFile("Invalid interface method ref class index");
     if (!constantPool.isValidEntry(this->nameAndTypeIndex_, Tag::NameAndType))
         throw CorruptClassFile("Invalid interface method ref name and type index");
+    this->descriptor_ = MethodDescriptor::read(constantPool.type(this->nameAndTypeIndex_));
 }
 
 void ConstantPool::NameAndTypeEntry::postParse(const ConstantPool &constantPool) {
@@ -533,6 +544,11 @@ const std::string &ConstantPool::fieldRefType(uint16_t index) const {
     return this->type(static_cast<const FieldRefEntry &>(this->operator[](index)).nameAndTypeIndex());
 }
 
+const Descriptor &ConstantPool::fieldRefDesc(uint16_t index) const {
+    if (!this->isValidEntry(index, Tag::FieldRef)) throw std::invalid_argument("Invalid field ref index");
+    return static_cast<const FieldRefEntry &>(this->operator[](index)).descriptor();
+}
+
 const std::string &ConstantPool::methodRefClass(uint16_t index) const {
     if (!this->isValidEntry(index, Tag::MethodRef)) throw std::invalid_argument("Invalid method ref index");
     return this->class_(static_cast<const MethodRefEntry &>(this->operator[](index)).classIndex());
@@ -548,6 +564,11 @@ const std::string &ConstantPool::methodRefType(uint16_t index) const {
     return this->type(static_cast<const MethodRefEntry &>(this->operator[](index)).nameAndTypeIndex());
 }
 
+const MethodDescriptor &ConstantPool::methodRefDesc(uint16_t index) const {
+    if (!this->isValidEntry(index, Tag::MethodRef)) throw std::invalid_argument("Invalid method ref index");
+    return static_cast<const MethodRefEntry &>(this->operator[](index)).descriptor();
+}
+
 const std::string &ConstantPool::interfaceMethodRefClass(uint16_t index) const {
     if (!this->isValidEntry(index, Tag::InterfaceMethodRef)) throw std::invalid_argument("Invalid interface method ref index");
     return this->class_(static_cast<const InterfaceMethodRefEntry &>(this->operator[](index)).classIndex());
@@ -561,6 +582,11 @@ const std::string &ConstantPool::interfaceMethodRefName(uint16_t index) const {
 const std::string &ConstantPool::interfaceMethodRefType(uint16_t index) const {
     if (!this->isValidEntry(index, Tag::InterfaceMethodRef)) throw std::invalid_argument("Invalid interface method ref index");
     return this->type(static_cast<const InterfaceMethodRefEntry &>(this->operator[](index)).nameAndTypeIndex());
+}
+
+const MethodDescriptor &ConstantPool::interfaceMethodRefDesc(uint16_t index) const {
+    if (!this->isValidEntry(index, Tag::InterfaceMethodRef)) throw std::invalid_argument("Invalid interface method ref index");
+    return static_cast<const InterfaceMethodRefEntry &>(this->operator[](index)).descriptor();
 }
 
 const std::string &ConstantPool::name(uint16_t index) const {

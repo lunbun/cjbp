@@ -7,6 +7,7 @@ target_sources(cjbp PUBLIC
         code_iterator.h
         constant_pool.h
         control_flow_graph.h
+        descriptor.h
         endian_util.h
         exception.h
         field_info.h

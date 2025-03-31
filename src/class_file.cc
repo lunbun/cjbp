@@ -60,16 +60,16 @@ std::unique_ptr<ClassFile> ClassFile::read(std::istream &s) {
                                        std::move(fields), std::move(methods), std::move(attributes));
 }
 
-FieldInfo *ClassFile::findField(const std::string &name, const std::string &desc) const {
+FieldInfo *ClassFile::findField(const std::string &name, const std::string &type) const {
     for (const auto &field : this->fields_) {
-        if (field->name() == name && field->descriptor() == desc) return field.get();
+        if (field->name() == name && field->type() == type) return field.get();
     }
     return nullptr;
 }
 
-MethodInfo *ClassFile::findMethod(const std::string &name, const std::string &desc) const {
+MethodInfo *ClassFile::findMethod(const std::string &name, const std::string &type) const {
     for (const auto &method : this->methods_) {
-        if (method->name() == name && method->descriptor() == desc) return method.get();
+        if (method->name() == name && method->type() == type) return method.get();
     }
     return nullptr;
 }

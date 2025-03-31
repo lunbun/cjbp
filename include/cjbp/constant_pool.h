@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "descriptor.h"
 #include "inline.h"
 
 namespace cjbp {
@@ -24,12 +25,15 @@ public:
     const std::string &fieldRefClass(uint16_t index) const;
     const std::string &fieldRefName(uint16_t index) const;
     const std::string &fieldRefType(uint16_t index) const;
+    const Descriptor &fieldRefDesc(uint16_t index) const;
     const std::string &methodRefClass(uint16_t index) const;
     const std::string &methodRefName(uint16_t index) const;
     const std::string &methodRefType(uint16_t index) const;
+    const MethodDescriptor &methodRefDesc(uint16_t index) const;
     const std::string &interfaceMethodRefClass(uint16_t index) const;
     const std::string &interfaceMethodRefName(uint16_t index) const;
     const std::string &interfaceMethodRefType(uint16_t index) const;
+    const MethodDescriptor &interfaceMethodRefDesc(uint16_t index) const;
 
     std::string toString() const;
 

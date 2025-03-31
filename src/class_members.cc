@@ -10,9 +10,9 @@ namespace cjbp {
 std::unique_ptr<FieldInfo> FieldInfo::read(std::istream &s, const ConstantPool &constantPool) {
     uint16_t accessFlags = readBigEndian<uint16_t>(s);
     const std::string &name = constantPool.utf8(readBigEndian<uint16_t>(s));
-    const std::string &descriptor = constantPool.utf8(readBigEndian<uint16_t>(s));
+    const std::string &type = constantPool.utf8(readBigEndian<uint16_t>(s));
     std::vector<std::unique_ptr<AttributeInfo>> attributes = AttributeInfo::readList(s, constantPool);
-    return std::make_unique<FieldInfo>(accessFlags, name, descriptor, std::move(attributes));
+    return std::make_unique<FieldInfo>(accessFlags, name, type, Descriptor::read(type), std::move(attributes));
 }
 
 std::string FieldInfo::toString(const ConstantPool &constantPool) const {
@@ -21,7 +21,7 @@ std::string FieldInfo::toString(const ConstantPool &constantPool) const {
         result += attribute->toString(constantPool);
     }
 
-    result = "Field: " + this->name_ + ' ' + this->descriptor_ + '\n' + indent(result, 1);
+    result = "Field: " + this->name_ + ' ' + this->type_ + '\n' + indent(result, 1);
     return result;
 }
 
@@ -30,7 +30,7 @@ std::string FieldInfo::toString(const ConstantPool &constantPool) const {
 std::unique_ptr<MethodInfo> MethodInfo::read(std::istream &s, const ConstantPool &constantPool) {
     uint16_t accessFlags = readBigEndian<uint16_t>(s);
     const std::string &name = constantPool.utf8(readBigEndian<uint16_t>(s));
-    const std::string &descriptor = constantPool.utf8(readBigEndian<uint16_t>(s));
+    const std::string &type = constantPool.utf8(readBigEndian<uint16_t>(s));
     std::vector<std::unique_ptr<AttributeInfo>> attributes = AttributeInfo::readList(s, constantPool);
 
     CodeAttributeInfo *codeAttribute = nullptr;
@@ -40,7 +40,7 @@ std::unique_ptr<MethodInfo> MethodInfo::read(std::istream &s, const ConstantPool
             break;
         }
     }
-    return std::make_unique<MethodInfo>(accessFlags, name, descriptor, codeAttribute, std::move(attributes));
+    return std::make_unique<MethodInfo>(accessFlags, name, type, MethodDescriptor::read(type), codeAttribute, std::move(attributes));
 }
 
 std::string MethodInfo::toString(const ConstantPool &constantPool) const {
@@ -49,7 +49,7 @@ std::string MethodInfo::toString(const ConstantPool &constantPool) const {
         result += attribute->toString(constantPool);
     }
 
-    result = "Method: " + this->name_ + ' ' + this->descriptor_ + '\n' + indent(result, 1);
+    result = "Method: " + this->name_ + ' ' + this->type_ + '\n' + indent(result, 1);
     return result;
 }
 
