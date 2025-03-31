@@ -13,8 +13,26 @@ namespace cjbp {
 
 class ConstantPool {
 public:
+    enum class Tag : uint8_t {
+        Utf8 = 1,
+        Integer = 3,
+        Float = 4,
+        Long = 5,
+        Double = 6,
+        Class = 7,
+        String = 8,
+        FieldRef = 9,
+        MethodRef = 10,
+        InterfaceMethodRef = 11,
+        NameAndType = 12,
+        MethodHandle = 15,
+        MethodType = 16,
+        InvokeDynamic = 18
+    };
+
     static ConstantPool read(std::istream &s);
 
+    Tag tag(uint16_t index) const;
     const std::string &utf8(uint16_t index) const;
     int32_t integer(uint16_t index) const;
     float float_(uint16_t index) const;
@@ -38,23 +56,6 @@ public:
     std::string toString() const;
 
 private:
-    enum class Tag : uint8_t {
-        Utf8 = 1,
-        Integer = 3,
-        Float = 4,
-        Long = 5,
-        Double = 6,
-        Class = 7,
-        String = 8,
-        FieldRef = 9,
-        MethodRef = 10,
-        InterfaceMethodRef = 11,
-        NameAndType = 12,
-        MethodHandle = 15,
-        MethodType = 16,
-        InvokeDynamic = 18
-    };
-
     class Entry {
     public:
         static std::unique_ptr<Entry> read(std::istream &s);

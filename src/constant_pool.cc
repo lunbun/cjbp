@@ -494,6 +494,11 @@ ConstantPool ConstantPool::read(std::istream &s) {
     return constantPool;
 }
 
+ConstantPool::Tag ConstantPool::tag(uint16_t index) const {
+    if (index == 0 || index >= this->entries_.size() + 1 || this->entries_[index - 1] == nullptr) throw std::invalid_argument("Invalid index");
+    return this->entries_[index - 1]->tag();
+}
+
 const std::string &ConstantPool::utf8(uint16_t index) const {
     if (!this->isValidEntry(index, Tag::Utf8)) throw std::invalid_argument("Invalid UTF-8 index");
     return static_cast<const Utf8Entry &>(this->operator[](index)).value();
