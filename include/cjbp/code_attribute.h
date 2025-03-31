@@ -82,7 +82,7 @@ private:
     Tag tag_;
     uint16_t data_;
 
-    CJBP_INLINE /* implicit */ VerificationTypeInfo(Tag tag) : VerificationTypeInfo(tag, 0) { } // NOLINT(google-explicit-constructor)
+    CJBP_INLINE /* implicit */ VerificationTypeInfo(Tag tag) : tag_(tag), data_(0) { } // NOLINT(google-explicit-constructor)
     CJBP_INLINE /* implicit */ VerificationTypeInfo(Tag tag, uint16_t data) : tag_(tag), data_(data) {
         assert(tag == Tag::Object || tag == Tag::Uninitialized);
     }

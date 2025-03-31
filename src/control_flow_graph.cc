@@ -93,7 +93,7 @@ std::unique_ptr<ControlFlowGraph> ControlFlowGraph::build(const CodeAttributeInf
             unanalyzedBlocks.pop();
 
             BasicBlock &block = blocks.at(start);
-            iterator.move(start);
+            iterator.moveTo(start);
             uint32_t index;
             while (!iterator.eof() && iterator.peek() < block.end()) {
                 index = iterator.next();
@@ -133,7 +133,7 @@ std::string ControlFlowGraph::toString(const CodeAttributeInfo &code) const {
         result += '\n';
         result += indent("Block " + std::to_string(start) + ':', 1);
 
-        iterator.move(start);
+        iterator.moveTo(start);
         uint32_t index;
         while (!iterator.eof() && (index = iterator.next()) < block.end()) {
             result += '\n';
