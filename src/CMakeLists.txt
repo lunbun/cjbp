@@ -1,4 +1,7 @@
 target_sources(cjbp PRIVATE
+        zip/miniz.h
+        zip/zip.c
+        zip/zip.h
         attribute.cc
         class_file.cc
         class_members.cc
