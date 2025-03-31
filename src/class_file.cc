@@ -60,6 +60,20 @@ std::unique_ptr<ClassFile> ClassFile::read(std::istream &s) {
                                        std::move(fields), std::move(methods), std::move(attributes));
 }
 
+FieldInfo *ClassFile::findField(const std::string &name, const std::string &desc) const {
+    for (const auto &field : this->fields_) {
+        if (field->name() == name && field->descriptor() == desc) return field.get();
+    }
+    return nullptr;
+}
+
+MethodInfo *ClassFile::findMethod(const std::string &name, const std::string &desc) const {
+    for (const auto &method : this->methods_) {
+        if (method->name() == name && method->descriptor() == desc) return method.get();
+    }
+    return nullptr;
+}
+
 std::string ClassFile::toString() const {
     std::string result;
     result += "Minor version: " + std::to_string(this->minorVersion_) + '\n';

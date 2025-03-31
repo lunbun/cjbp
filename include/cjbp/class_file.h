@@ -35,6 +35,9 @@ public:
     CJBP_INLINE const std::vector<std::unique_ptr<MethodInfo>> &methods() const { return this->methods_; }
     CJBP_INLINE const std::vector<std::unique_ptr<AttributeInfo>> &attributes() const { return this->attributes_; }
 
+    FieldInfo *findField(const std::string &name, const std::string &desc) const;   // nullptr if not found
+    MethodInfo *findMethod(const std::string &name, const std::string &desc) const; // nullptr if not found
+
     std::string toString() const;
 
 private:

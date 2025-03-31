@@ -21,7 +21,11 @@ public:
                            std::vector<std::unique_ptr<AttributeInfo>> attributes) :
         accessFlags_(accessFlags), name_(name), descriptor_(descriptor), codeAttribute_(codeAttribute), attributes_(std::move(attributes)) { }
 
+    CJBP_INLINE uint16_t accessFlags() const { return accessFlags_; }
+    CJBP_INLINE const std::string &name() const { return this->name_; }
+    CJBP_INLINE const std::string &descriptor() const { return this->descriptor_; }
     CJBP_INLINE CodeAttributeInfo *code() const { return this->codeAttribute_; }
+    CJBP_INLINE const std::vector<std::unique_ptr<AttributeInfo>> &attributes() const { return this->attributes_; }
 
     std::string toString(const ConstantPool &constantPool) const;
 
