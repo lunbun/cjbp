@@ -69,15 +69,18 @@ MethodDescriptor MethodDescriptor::read(std::istream &s) {
     if (s.get() != '(' || s.fail()) throw CorruptClassFile("Failed to read method descriptor");
 
     std::vector<Descriptor> parameters;
+    uint32_t formalParamSize = 0;
     while (s.peek() != ')') {
         if (s.fail()) throw CorruptClassFile("Failed to read method descriptor");
-        parameters.push_back(Descriptor::read(s));
+        Descriptor d = Descriptor::read(s);
+        formalParamSize += d.formalSize();
+        parameters.push_back(std::move(d));
     }
     s.get(); // Consume the ')'
     if (s.fail()) throw CorruptClassFile("Failed to read method descriptor");
 
     Descriptor returnType = Descriptor::read(s);
-    return { std::move(parameters), returnType };
+    return { std::move(parameters), formalParamSize, std::move(returnType) };
 }
 
 std::string MethodDescriptor::toString() const {

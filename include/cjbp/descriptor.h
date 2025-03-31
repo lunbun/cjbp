@@ -22,6 +22,7 @@ public:
     }
 
     CJBP_INLINE Type type() const { return this->type_; }
+    CJBP_INLINE uint32_t formalSize() const { return this->type_ == Type::Long || this->type_ == Type::Double ? 2 : 1; }
     CJBP_INLINE bool isArray() const { return this->arrayDimensions_ > 0; }
     CJBP_INLINE uint8_t arrayDimensions() const { return this->arrayDimensions_; }
     CJBP_INLINE const std::string &className() const {
@@ -60,6 +61,7 @@ public:
     }
 
     CJBP_INLINE const std::vector<Descriptor> &params() const { return this->parameters_; }
+    CJBP_INLINE uint32_t formalParamSize() const { return this->formalParamSize_; }
     CJBP_INLINE const Descriptor &returnType() const { return this->returnType_; }
 
     std::string toString() const;
@@ -68,11 +70,12 @@ private:
     static MethodDescriptor read(std::istream &s);
 
     std::vector<Descriptor> parameters_;
+    uint32_t formalParamSize_;
     Descriptor returnType_;
 
     // NOLINTNEXTLINE(google-explicit-constructor)
-    CJBP_INLINE /* implicit */ MethodDescriptor(std::vector<Descriptor> parameters, Descriptor returnType) :
-        parameters_(std::move(parameters)), returnType_(std::move(returnType)) { }
+    CJBP_INLINE /* implicit */ MethodDescriptor(std::vector<Descriptor> parameters, uint32_t formalParamSize, Descriptor returnType) :
+        parameters_(std::move(parameters)), formalParamSize_(formalParamSize), returnType_(std::move(returnType)) { }
 };
 
 } // namespace cjbp
