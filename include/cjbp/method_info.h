@@ -12,17 +12,19 @@
 
 namespace cjbp {
 
+class ClassFile;
 class CodeAttributeInfo;
 
 class MethodInfo {
 public:
     static std::unique_ptr<MethodInfo> read(std::istream &s, const ConstantPool &constantPool);
 
-    CJBP_INLINE MethodInfo(uint16_t accessFlags, const std::string &name, const std::string &type, MethodDescriptor descriptor,
-                           CodeAttributeInfo *codeAttribute, std::vector<std::unique_ptr<AttributeInfo>> attributes) :
-        accessFlags_(accessFlags), name_(name), type_(type), descriptor_(std::move(descriptor)), codeAttribute_(codeAttribute),
-        attributes_(std::move(attributes)) { }
+    CJBP_INLINE MethodInfo(const ConstantPool &constantPool, uint16_t accessFlags, const std::string &name, const std::string &type,
+                           MethodDescriptor descriptor, CodeAttributeInfo *codeAttribute, std::vector<std::unique_ptr<AttributeInfo>> attributes) :
+        constantPool_(constantPool), accessFlags_(accessFlags), name_(name), type_(type), descriptor_(std::move(descriptor)),
+        codeAttribute_(codeAttribute), attributes_(std::move(attributes)) { }
 
+    CJBP_INLINE const ConstantPool &constantPool() const { return this->constantPool_; }
     CJBP_INLINE uint16_t accessFlags() const { return accessFlags_; }
     CJBP_INLINE bool isPublic() const { return (this->accessFlags_ & 0x0001) != 0; }
     CJBP_INLINE bool isPrivate() const { return (this->accessFlags_ & 0x0002) != 0; }
@@ -46,6 +48,7 @@ public:
     std::string toString(const ConstantPool &constantPool) const;
 
 private:
+    const ConstantPool &constantPool_;
     uint16_t accessFlags_;
     const std::string &name_;
     const std::string &type_;

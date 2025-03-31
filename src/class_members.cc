@@ -41,7 +41,7 @@ std::unique_ptr<MethodInfo> MethodInfo::read(std::istream &s, const ConstantPool
             break;
         }
     }
-    return std::make_unique<MethodInfo>(accessFlags, name, type, MethodDescriptor::read(type), codeAttribute, std::move(attributes));
+    return std::make_unique<MethodInfo>(constantPool, accessFlags, name, type, MethodDescriptor::read(type), codeAttribute, std::move(attributes));
 }
 
 std::string MethodInfo::toString(const ConstantPool &constantPool) const {
