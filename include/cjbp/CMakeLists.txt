@@ -2,6 +2,7 @@ target_sources(cjbp PUBLIC
         attribute.h
         cjbp.h
         class_file.h
+        class_path.h
         code_attribute.h
         code_iterator.h
         constant_pool.h

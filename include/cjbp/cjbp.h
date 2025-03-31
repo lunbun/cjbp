@@ -2,6 +2,7 @@
 
 #include "attribute.h"
 #include "class_file.h"
+#include "class_path.h"
 #include "code_attribute.h"
 #include "code_iterator.h"
 #include "constant_pool.h"
