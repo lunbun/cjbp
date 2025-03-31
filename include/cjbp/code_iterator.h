@@ -226,7 +226,8 @@ public:
     /// Returns the index of the next opcode in the code.
     uint32_t next();
 
-    CJBP_INLINE void move(uint32_t position) { this->position_ = position; }
+    CJBP_INLINE void moveTo(uint32_t position) { this->position_ = position; }
+    CJBP_INLINE void moveBy(int32_t offset) { this->position_ += offset; }
     CJBP_INLINE uint32_t peek() const { return this->position_; }
     CJBP_INLINE bool eof() const { return this->position_ >= this->size_; }
 
