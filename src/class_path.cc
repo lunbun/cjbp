@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 #include <sstream>
 
 #include "zip/zip.h"
@@ -35,7 +36,9 @@ DirectoryClassPath::DirectoryClassPath(std::string path) : path_(std::move(path)
 }
 
 std::shared_ptr<std::istream> DirectoryClassPath::findClass(const std::string &name) {
-    std::string path = this->path_ + name + ".class";
+    std::string path = name;
+    std::replace(path.begin(), path.end(), '.', '/');
+    path = this->path_ + path + ".class";
     if (!std::filesystem::exists(path) || !std::filesystem::is_regular_file(path)) return nullptr;
 
     return std::make_shared<std::ifstream>(path, std::ios::binary);
@@ -85,7 +88,10 @@ JarClassPath::~JarClassPath() {
 }
 
 std::shared_ptr<std::istream> JarClassPath::findClass(const std::string &name) {
-    zip_entry_open(this->zip_, name.c_str());
+    std::string path = name;
+    std::replace(path.begin(), path.end(), '.', '/');
+    path += ".class";
+    zip_entry_open(this->zip_, path.c_str());
 
     void *buf = nullptr;
     size_t size = 0;
