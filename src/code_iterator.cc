@@ -254,7 +254,22 @@ std::string CodeIterator::toString(uint32_t index) const {
         case Opcode::InvokeInterface: return "invokeinterface [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
         case Opcode::InvokeDynamic: return "invokedynamic [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
         case Opcode::New: return "new [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
-        case Opcode::NewArray: return "newarray [" + std::to_string(this->code_[index + 1]) + ']';
+        case Opcode::NewArray: {
+            std::string result = "newarray ";
+            switch (this->code_[index + 1]) {
+                case ArrayType::Boolean: result += "boolean"; break;
+                case ArrayType::Char: result += "char"; break;
+                case ArrayType::Float: result += "float"; break;
+                case ArrayType::Double: result += "double"; break;
+                case ArrayType::Byte: result += "byte"; break;
+                case ArrayType::Short: result += "short"; break;
+                case ArrayType::Int: result += "int"; break;
+                case ArrayType::Long: result += "long"; break;
+                default: result += "unknown"; break;
+            }
+            result += "[]";
+            return result;
+        }
         case Opcode::ANewArray: return "anewarray [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
         case Opcode::ArrayLength: return "arraylength";
         case Opcode::AThrow: return "athrow";
