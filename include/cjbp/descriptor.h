@@ -22,7 +22,8 @@ public:
         return Descriptor::read(ss);
     }
 
-    CJBP_INLINE static constexpr Descriptor::Type fromNewArray(NewArrayType type);
+    CJBP_INLINE static uint32_t formalSize(Type type) { return type == Type::Void ? 0 : (type == Type::Long || type == Type::Double ? 2 : 1); }
+    CJBP_INLINE static constexpr Type fromNewArray(NewArrayType type);
 
     CJBP_INLINE Descriptor() = default;
     // NOLINTNEXTLINE(google-explicit-constructor)
@@ -39,9 +40,7 @@ public:
     }
 
     CJBP_INLINE Type type() const { return this->type_; }
-    CJBP_INLINE uint32_t formalSize() const {
-        return this->type_ == Type::Void ? 0 : (this->type_ == Type::Long || this->type_ == Type::Double ? 2 : 1);
-    }
+    CJBP_INLINE uint32_t formalSize() const { return Descriptor::formalSize(this->type_); }
     CJBP_INLINE bool isArray() const { return this->arrayDimensions_ > 0; }
     CJBP_INLINE uint8_t arrayDimensions() const { return this->arrayDimensions_; }
     CJBP_INLINE const std::string &className() const {
