@@ -17,16 +17,17 @@ class ClassFile {
 public:
     static std::unique_ptr<ClassFile> read(std::istream &s);
 
-    CJBP_INLINE ClassFile(uint16_t minorVersion, uint16_t majorVersion, ConstantPool constantPool, uint16_t accessFlags, const std::string &name,
-                          const std::string *superName, std::vector<const std::string *> interfaces, std::vector<std::unique_ptr<FieldInfo>> fields,
-                          std::vector<std::unique_ptr<MethodInfo>> methods, std::vector<std::unique_ptr<AttributeInfo>> attributes) :
+    CJBP_INLINE ClassFile(uint16_t minorVersion, uint16_t majorVersion, std::unique_ptr<ConstantPool> constantPool, uint16_t accessFlags,
+                          const std::string &name, const std::string *superName, std::vector<const std::string *> interfaces,
+                          std::vector<std::unique_ptr<FieldInfo>> fields, std::vector<std::unique_ptr<MethodInfo>> methods,
+                          std::vector<std::unique_ptr<AttributeInfo>> attributes) :
         minorVersion_(minorVersion), majorVersion_(majorVersion), constantPool_(std::move(constantPool)), accessFlags_(accessFlags), name_(name),
         superName_(superName), interfaces_(std::move(interfaces)), fields_(std::move(fields)), methods_(std::move(methods)),
         attributes_(std::move(attributes)) { }
 
     CJBP_INLINE uint16_t minorVersion() const { return this->minorVersion_; }
     CJBP_INLINE uint16_t majorVersion() const { return this->majorVersion_; }
-    CJBP_INLINE const ConstantPool &constantPool() const { return this->constantPool_; }
+    CJBP_INLINE const ConstantPool &constantPool() const { return *this->constantPool_; }
     CJBP_INLINE uint16_t accessFlags() const { return this->accessFlags_; }
     CJBP_INLINE const std::string &name() const { return this->name_; }
     CJBP_INLINE const std::string *superName() const { return this->superName_; }
@@ -35,7 +36,7 @@ public:
     CJBP_INLINE const std::vector<std::unique_ptr<MethodInfo>> &methods() const { return this->methods_; }
     CJBP_INLINE const std::vector<std::unique_ptr<AttributeInfo>> &attributes() const { return this->attributes_; }
 
-    FieldInfo *findField(const std::string &name, const std::string &type) const;   // nullptr if not found
+    FieldInfo *findField(const std::string &name, const std::string &type) const; // nullptr if not found
     MethodInfo *findMethod(const std::string &name, const std::string &type) const; // nullptr if not found
 
     std::string toString() const;
@@ -43,7 +44,7 @@ public:
 private:
     uint16_t minorVersion_;
     uint16_t majorVersion_;
-    ConstantPool constantPool_;
+    std::unique_ptr<ConstantPool> constantPool_;
     uint16_t accessFlags_;
     const std::string &name_;
     const std::string *superName_; // Can be nullptr

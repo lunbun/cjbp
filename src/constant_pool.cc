@@ -1,7 +1,7 @@
 #include "cjbp/constant_pool.h"
 
-#include <optional>
 #include <algorithm>
+#include <optional>
 #include <sstream>
 
 #include "cjbp/exception.h"
@@ -9,6 +9,19 @@
 #include "string_util.h"
 
 namespace cjbp {
+
+class ConstantPool::Entry {
+public:
+    static std::unique_ptr<Entry> read(std::istream &s);
+
+    virtual ~Entry() = default;
+
+    virtual Tag tag() const = 0;
+    virtual std::string toString(const ConstantPool &constantPool) const = 0;
+
+    // Verify that the entry is valid, and perform any other necessary post-parsing operations.
+    virtual void postParse(const ConstantPool &constantPool) { }
+};
 
 class ConstantPool::Utf8Entry : public Entry {
 public:
@@ -345,17 +358,17 @@ std::string ConstantPool::StringEntry::toString(const ConstantPool &constantPool
 
 std::string ConstantPool::FieldRefEntry::toString(const ConstantPool &constantPool) const {
     return "FieldRef: " + constantPool.class_(this->classIndex_) + ' ' + constantPool.name(this->nameAndTypeIndex_) + ' ' +
-                       constantPool.type(this->nameAndTypeIndex_);
+           constantPool.type(this->nameAndTypeIndex_);
 }
 
 std::string ConstantPool::MethodRefEntry::toString(const ConstantPool &constantPool) const {
     return "MethodRef: " + constantPool.class_(this->classIndex_) + ' ' + constantPool.name(this->nameAndTypeIndex_) + ' ' +
-                        constantPool.type(this->nameAndTypeIndex_);
+           constantPool.type(this->nameAndTypeIndex_);
 }
 
 std::string ConstantPool::InterfaceMethodRefEntry::toString(const ConstantPool &constantPool) const {
     return "InterfaceMethodRef: " + constantPool.class_(this->classIndex_) + ' ' + constantPool.name(this->nameAndTypeIndex_) + ' ' +
-                                   constantPool.type(this->nameAndTypeIndex_);
+           constantPool.type(this->nameAndTypeIndex_);
 }
 
 std::string ConstantPool::NameAndTypeEntry::toString(const ConstantPool &constantPool) const {
@@ -372,7 +385,7 @@ std::string ConstantPool::MethodTypeEntry::toString(const ConstantPool &constant
 
 std::string ConstantPool::InvokeDynamicEntry::toString(const ConstantPool &constantPool) const {
     return "InvokeDynamic: " + std::to_string(this->bootstrapMethodAttrIndex_) + ' ' + constantPool.name(this->nameAndTypeIndex_) + ' ' +
-                       constantPool.type(this->nameAndTypeIndex_);
+           constantPool.type(this->nameAndTypeIndex_);
 }
 
 CJBP_INLINE std::unique_ptr<ConstantPool::Utf8Entry> ConstantPool::Utf8Entry::read(std::istream &s) {
@@ -470,7 +483,7 @@ CJBP_INLINE std::unique_ptr<ConstantPool::Entry> ConstantPool::Entry::read(std::
     }
 }
 
-ConstantPool ConstantPool::read(std::istream &s) {
+std::unique_ptr<ConstantPool> ConstantPool::read(std::istream &s) {
     uint16_t count = readBigEndian<uint16_t>(s);
     if (count == 0) {
         throw CorruptClassFile("Invalid constant pool count");
@@ -486,13 +499,17 @@ ConstantPool ConstantPool::read(std::istream &s) {
         i += (tag == Tag::Long || tag == Tag::Double) ? 2 : 1;
     }
 
-    ConstantPool constantPool(std::move(entries));
-    for (const auto &entry: constantPool.entries_) {
-        if (entry != nullptr) entry->postParse(constantPool);
+    std::unique_ptr<ConstantPool> constantPool = std::make_unique<ConstantPool>(std::move(entries));
+    for (const auto &entry : constantPool->entries_) {
+        if (entry != nullptr) entry->postParse(*constantPool);
     }
 
     return constantPool;
 }
+
+ConstantPool::ConstantPool(std::vector<std::unique_ptr<Entry>> entries) : entries_(std::move(entries)) { }
+
+ConstantPool::~ConstantPool() noexcept = default;
 
 ConstantPool::Tag ConstantPool::tag(uint16_t index) const {
     if (index == 0 || index >= this->entries_.size() + 1 || this->entries_[index - 1] == nullptr) throw std::invalid_argument("Invalid index");

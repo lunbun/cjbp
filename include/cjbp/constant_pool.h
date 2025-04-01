@@ -29,8 +29,13 @@ public:
         MethodType = 16,
         InvokeDynamic = 18
     };
+    class Entry;
 
-    static ConstantPool read(std::istream &s);
+    static std::unique_ptr<ConstantPool> read(std::istream &s);
+
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    /* implicit */ ConstantPool(std::vector<std::unique_ptr<Entry>> entries);
+    ~ConstantPool() noexcept;
 
     Tag tag(uint16_t index) const;
     const std::string &utf8(uint16_t index) const;
@@ -56,19 +61,6 @@ public:
     std::string toString() const;
 
 private:
-    class Entry {
-    public:
-        static std::unique_ptr<Entry> read(std::istream &s);
-
-        virtual ~Entry() = default;
-
-        virtual Tag tag() const = 0;
-        virtual std::string toString(const ConstantPool &constantPool) const = 0;
-
-        // Verify that the entry is valid, and perform any other necessary post-parsing operations.
-        virtual void postParse(const ConstantPool &constantPool) { }
-    };
-
     class Utf8Entry;
     class IntegerEntry;
     class FloatEntry;
@@ -85,9 +77,6 @@ private:
     class InvokeDynamicEntry;
 
     std::vector<std::unique_ptr<Entry>> entries_;
-
-    // NOLINTNEXTLINE(google-explicit-constructor)
-    CJBP_INLINE /* implicit */ ConstantPool(std::vector<std::unique_ptr<Entry>> entries) : entries_(std::move(entries)) { }
 
     bool isValidEntry(uint16_t index, Tag tag) const;
     const Entry &operator[](uint16_t index) const;
