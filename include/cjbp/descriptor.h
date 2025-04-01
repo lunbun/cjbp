@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "code_iterator.h"
 #include "inline.h"
 
 namespace cjbp {
@@ -19,6 +20,20 @@ public:
     CJBP_INLINE static Descriptor read(const std::string &s) {
         std::stringstream ss(s);
         return Descriptor::read(ss);
+    }
+
+    CJBP_INLINE static Descriptor fromNewArray(NewArrayType type);
+
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    CJBP_INLINE /* implicit */ Descriptor(Type type) : Descriptor(type, 0) { }
+    CJBP_INLINE /* implicit */ Descriptor(Type type, uint8_t arrayDimensions) : type_(type), arrayDimensions_(arrayDimensions) {
+        assert(type != Type::Object);
+        assert(type != Type::Void || arrayDimensions == 0);
+    }
+    CJBP_INLINE /* implicit */ Descriptor(Type type, std::string className) : Descriptor(type, 0, std::move(className)) { }
+    CJBP_INLINE /* implicit */ Descriptor(Type type, uint8_t arrayDimensions, std::string className) :
+        type_(type), arrayDimensions_(arrayDimensions), className_(std::move(className)) {
+        assert(type == Type::Object);
     }
 
     CJBP_INLINE Type type() const { return this->type_; }
@@ -42,18 +57,23 @@ private:
     Type type_;
     uint8_t arrayDimensions_;
     std::optional<std::string> className_;
-
-    // NOLINTNEXTLINE(google-explicit-constructor)
-    CJBP_INLINE /* implicit */ Descriptor(Type type, uint8_t arrayDimensions) : type_(type), arrayDimensions_(arrayDimensions) {
-        assert(type != Type::Object);
-        assert(type != Type::Void || arrayDimensions == 0);
-    }
-    // NOLINTNEXTLINE(google-explicit-constructor)
-    CJBP_INLINE /* implicit */ Descriptor(Type type, uint8_t arrayDimensions, std::string className) :
-        type_(type), arrayDimensions_(arrayDimensions), className_(std::move(className)) {
-        assert(type == Type::Object);
-    }
 };
+
+CJBP_INLINE Descriptor Descriptor::fromNewArray(NewArrayType type) {
+    switch (type) {
+        case NewArrayType::Boolean: return Descriptor(Type::Boolean);
+        case NewArrayType::Char: return Descriptor(Type::Char);
+        case NewArrayType::Float: return Descriptor(Type::Float);
+        case NewArrayType::Double: return Descriptor(Type::Double);
+        case NewArrayType::Byte: return Descriptor(Type::Byte);
+        case NewArrayType::Short: return Descriptor(Type::Short);
+        case NewArrayType::Int: return Descriptor(Type::Int);
+        case NewArrayType::Long: return Descriptor(Type::Long);
+        default: return Descriptor(Type::Int);
+    }
+}
+
+
 
 class MethodDescriptor {
 public:

@@ -1,29 +1,23 @@
 #include "cjbp/code_iterator.h"
 
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 
+#include "cjbp/descriptor.h"
 #include "string_util.h"
 
 namespace cjbp {
 
 namespace {
 
-constexpr uint8_t OpcodeWidth[] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 3,
-        3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3,
-        3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 0, 0, 1, 1, 1, 1, 1, 1, 3, 3,
-        3, 3, 3, 3, 3, 5, 5, 3, 2, 3, 1, 1, 3, 3, 1, 1, 0, 4, 3, 3,
-        5, 5
-};
+constexpr uint8_t OpcodeWidth[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1,
+                                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1,
+                                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2,
+                                    0, 0, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 5, 5, 3, 2, 3, 1, 1, 3, 3, 1, 1, 0, 4, 3, 3, 5, 5 };
 
-} // namespace (anonymous)
+} // namespace
 
 uint32_t CodeIterator::next() {
     if (this->position_ >= this->size_) throw std::out_of_range("CodeIterator::next: End of code");
@@ -254,22 +248,8 @@ std::string CodeIterator::toString(uint32_t index) const {
         case Opcode::InvokeInterface: return "invokeinterface [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
         case Opcode::InvokeDynamic: return "invokedynamic [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
         case Opcode::New: return "new [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
-        case Opcode::NewArray: {
-            std::string result = "newarray ";
-            switch (this->code_[index + 1]) {
-                case ArrayType::Boolean: result += "boolean"; break;
-                case ArrayType::Char: result += "char"; break;
-                case ArrayType::Float: result += "float"; break;
-                case ArrayType::Double: result += "double"; break;
-                case ArrayType::Byte: result += "byte"; break;
-                case ArrayType::Short: result += "short"; break;
-                case ArrayType::Int: result += "int"; break;
-                case ArrayType::Long: result += "long"; break;
-                default: result += "unknown"; break;
-            }
-            result += "[]";
-            return result;
-        }
+        case Opcode::NewArray:
+            return "newarray " + Descriptor::fromNewArray(static_cast<NewArrayType>(this->read<uint8_t>(index + 1))).toString() + "[]";
         case Opcode::ANewArray: return "anewarray [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
         case Opcode::ArrayLength: return "arraylength";
         case Opcode::AThrow: return "athrow";

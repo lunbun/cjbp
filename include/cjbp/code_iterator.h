@@ -219,8 +219,8 @@ enum Opcode : uint8_t {
 } // namespace OpcodeNamespace
 using Opcode = OpcodeNamespace::Opcode;
 
-namespace ArrayTypeNamespace {
-enum ArrayType : uint8_t {  // Types for the newarray instruction
+namespace NewArrayTypeNamespace {
+enum NewArrayType : uint8_t {  // Types for the newarray instruction
     Boolean = 4,
     Char = 5,
     Float = 6,
@@ -231,7 +231,7 @@ enum ArrayType : uint8_t {  // Types for the newarray instruction
     Long = 11,
 };
 } // namespace ArrayTypeNamespace
-using ArrayType = ArrayTypeNamespace::ArrayType;
+using NewArrayType = NewArrayTypeNamespace::NewArrayType;
 
 class CodeIterator {
 public:
