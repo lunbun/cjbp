@@ -24,6 +24,7 @@ public:
 
     CJBP_INLINE static Descriptor fromNewArray(NewArrayType type);
 
+    CJBP_INLINE Descriptor() = default;
     // NOLINTNEXTLINE(google-explicit-constructor)
     CJBP_INLINE /* implicit */ Descriptor(Type type) : Descriptor(type, 0) { }
     CJBP_INLINE /* implicit */ Descriptor(Type type, uint8_t arrayDimensions) : type_(type), arrayDimensions_(arrayDimensions) {
