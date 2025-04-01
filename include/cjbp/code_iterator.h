@@ -219,6 +219,20 @@ enum Opcode : uint8_t {
 } // namespace OpcodeNamespace
 using Opcode = OpcodeNamespace::Opcode;
 
+namespace ArrayTypeNamespace {
+enum ArrayType : uint8_t {  // Types for the newarray instruction
+    Boolean = 4,
+    Char = 5,
+    Float = 6,
+    Double = 7,
+    Byte = 8,
+    Short = 9,
+    Int = 10,
+    Long = 11,
+};
+} // namespace ArrayTypeNamespace
+using ArrayType = ArrayTypeNamespace::ArrayType;
+
 class CodeIterator {
 public:
     CJBP_INLINE explicit CodeIterator(const uint8_t *code, uint32_t size) : code_(code), size_(size), position_(0) { }
