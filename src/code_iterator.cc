@@ -23,9 +23,21 @@ uint32_t CodeIterator::next() {
     if (this->position_ >= this->size_) throw std::out_of_range("CodeIterator::next: End of code");
 
     uint32_t result = this->position_;
-    uint8_t width = OpcodeWidth[this->code_[result]];
+    uint8_t opcode = this->code_[result];
+    uint8_t width = OpcodeWidth[opcode];
     if (width == 0) {
-        throw std::runtime_error("CodeIterator::next: Unimplemented opcode");
+        if (opcode == Opcode::TableSwitch) {
+            uint32_t paddedIndex = (result + 4) & ~0x3;
+            uint32_t low = this->read<uint32_t>(paddedIndex + 4);
+            uint32_t high = this->read<uint32_t>(paddedIndex + 8);
+            this->position_ = paddedIndex + 12 + (high - low + 1) * 4;
+        } else if (opcode == Opcode::LookupSwitch) {
+            uint32_t paddedIndex = (result + 4) & ~0x3;
+            uint32_t npairs = this->read<uint32_t>(paddedIndex + 4);
+            this->position_ = paddedIndex + 8 + npairs * 8;
+        } else {
+            throw std::runtime_error("CodeIterator::next: Unimplemented opcode");
+        }
     } else {
         this->position_ += width;
     }
@@ -207,27 +219,27 @@ std::string CodeIterator::toString(uint32_t index) const {
         case Opcode::Jsr: return "jsr @" + std::to_string(index + this->read<int16_t>(index + 1));
         case Opcode::Ret: return "ret " + std::to_string(this->code_[index + 1]);
         case Opcode::TableSwitch: {
-            index = (index + 4) & ~3;
-            uint32_t defaultAddress = index + this->read<int32_t>(index + 1);
-            uint32_t low = this->read<int32_t>(index + 5);
-            uint32_t high = this->read<int32_t>(index + 9);
+            uint32_t paddedIndex = (index + 4) & ~3;
+            uint32_t defaultAddress = index + this->read<int32_t>(paddedIndex);
+            uint32_t low = this->read<int32_t>(paddedIndex + 4);
+            uint32_t high = this->read<int32_t>(paddedIndex + 8);
             std::string result = "tableswitch " + std::to_string(low) + " to " + std::to_string(high) + " default @" + std::to_string(defaultAddress);
             for (uint32_t i = 0; i < high - low + 1; i++) {
-                uint32_t address = index + this->read<int32_t>(index + 13 + i * 4);
+                uint32_t address = index + this->read<int32_t>(paddedIndex + 12 + i * 4);
                 result += '\n';
                 result += indent(std::to_string(low + i) + ": @" + std::to_string(address), 1);
             }
             return result;
         }
         case Opcode::LookupSwitch: {
-            index = (index + 4) & ~3;
-            uint32_t defaultAddress = index + this->read<int32_t>(index + 1);
-            uint32_t npairs = this->read<int32_t>(index + 5);
+            uint32_t paddedIndex = (index + 4) & ~3;
+            uint32_t defaultAddress = index + this->read<int32_t>(paddedIndex);
+            uint32_t npairs = this->read<int32_t>(paddedIndex + 4);
             std::string result = "lookupswitch default @" + std::to_string(defaultAddress);
             for (uint32_t i = 0; i < npairs; i++) {
                 result += '\n';
-                int32_t match = this->read<int32_t>(index + 9 + i * 8);
-                uint32_t address = index + this->read<int32_t>(index + 13 + i * 8);
+                int32_t match = this->read<int32_t>(paddedIndex + 8 + i * 8);
+                uint32_t address = index + this->read<int32_t>(paddedIndex + 12 + i * 8);
                 result += indent(std::to_string(match) + ": @" + std::to_string(address), 1);
             }
             return result;
@@ -249,7 +261,7 @@ std::string CodeIterator::toString(uint32_t index) const {
         case Opcode::InvokeDynamic: return "invokedynamic [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
         case Opcode::New: return "new [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
         case Opcode::NewArray:
-            return "newarray " + Descriptor::fromNewArray(static_cast<NewArrayType>(this->read<uint8_t>(index + 1))).toString() + "[]";
+            return "newarray " + Descriptor(Descriptor::fromNewArray(static_cast<NewArrayType>(this->read<uint8_t>(index + 1)))).toString() + "[]";
         case Opcode::ANewArray: return "anewarray [" + std::to_string(this->read<uint16_t>(index + 1)) + ']';
         case Opcode::ArrayLength: return "arraylength";
         case Opcode::AThrow: return "athrow";
