@@ -22,7 +22,7 @@ public:
         return Descriptor::read(ss);
     }
 
-    CJBP_INLINE static Descriptor fromNewArray(NewArrayType type);
+    CJBP_INLINE static constexpr Descriptor::Type fromNewArray(NewArrayType type);
 
     CJBP_INLINE Descriptor() = default;
     // NOLINTNEXTLINE(google-explicit-constructor)
@@ -31,7 +31,8 @@ public:
         assert(type != Type::Object);
         assert(type != Type::Void || arrayDimensions == 0);
     }
-    CJBP_INLINE /* implicit */ Descriptor(Type type, std::string className) : Descriptor(type, 0, std::move(className)) { }
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    CJBP_INLINE /* implicit */ Descriptor(std::string className) : Descriptor(Type::Object, 0, std::move(className)) { }
     CJBP_INLINE /* implicit */ Descriptor(Type type, uint8_t arrayDimensions, std::string className) :
         type_(type), arrayDimensions_(arrayDimensions), className_(std::move(className)) {
         assert(type == Type::Object);
@@ -60,17 +61,17 @@ private:
     std::optional<std::string> className_;
 };
 
-CJBP_INLINE Descriptor Descriptor::fromNewArray(NewArrayType type) {
+CJBP_INLINE constexpr Descriptor::Type Descriptor::fromNewArray(NewArrayType type) {
     switch (type) {
-        case NewArrayType::Boolean: return Descriptor(Type::Boolean);
-        case NewArrayType::Char: return Descriptor(Type::Char);
-        case NewArrayType::Float: return Descriptor(Type::Float);
-        case NewArrayType::Double: return Descriptor(Type::Double);
-        case NewArrayType::Byte: return Descriptor(Type::Byte);
-        case NewArrayType::Short: return Descriptor(Type::Short);
-        case NewArrayType::Int: return Descriptor(Type::Int);
-        case NewArrayType::Long: return Descriptor(Type::Long);
-        default: return Descriptor(Type::Int);
+        case NewArrayType::Boolean: return Type::Boolean;
+        case NewArrayType::Char: return Type::Char;
+        case NewArrayType::Float: return Type::Float;
+        case NewArrayType::Double: return Type::Double;
+        case NewArrayType::Byte: return Type::Byte;
+        case NewArrayType::Short: return Type::Short;
+        case NewArrayType::Int: return Type::Int;
+        case NewArrayType::Long: return Type::Long;
+        default: return Type::Void;
     }
 }
 
