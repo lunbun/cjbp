@@ -107,6 +107,7 @@ public:
 
     Tag tag() const override { return Tag::Class; }
     std::string toString(const ConstantPool &constantPool) const override;
+    CJBP_INLINE uint16_t nameIndex() const { return this->nameIndex_; }
     CJBP_INLINE const std::string &fqnName() const { return this->fqnName_; }
 
     void postParse(const ConstantPool &constantPool) override;
@@ -539,6 +540,11 @@ int64_t ConstantPool::long_(uint16_t index) const {
 double ConstantPool::double_(uint16_t index) const {
     if (!this->isValidEntry(index, Tag::Double)) throw std::invalid_argument("Invalid double index");
     return static_cast<const DoubleEntry &>(this->operator[](index)).value();
+}
+
+const std::string &ConstantPool::classRaw(uint16_t index) const {
+    if (!this->isValidEntry(index, Tag::Class)) throw std::invalid_argument("Invalid class index");
+    return this->utf8(static_cast<const ClassEntry &>(this->operator[](index)).nameIndex());
 }
 
 const std::string &ConstantPool::class_(uint16_t index) const {

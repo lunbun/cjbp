@@ -43,6 +43,7 @@ public:
     float float_(uint16_t index) const;
     int64_t long_(uint16_t index) const;
     double double_(uint16_t index) const;
+    const std::string &classRaw(uint16_t index) const;
     const std::string &class_(uint16_t index) const;
     const std::string &string(uint16_t index) const;
     const std::string &fieldRefClass(uint16_t index) const;
