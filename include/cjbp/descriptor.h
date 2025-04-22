@@ -13,16 +13,36 @@
 
 namespace cjbp {
 
+/**
+ * Descriptor represents a parsed type descriptor in the Java Virtual Machine.
+ *
+ * A raw type descriptor looks like a field descriptor: https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2
+ */
 class Descriptor {
 public:
     enum class Type : uint8_t { Byte = 0, Char, Double, Float, Int, Long, Object, Short, Boolean, Void };
 
+    /**
+     * Reads a descriptor from a string.
+     */
     CJBP_INLINE static Descriptor read(const std::string &s) {
         std::stringstream ss(s);
         return Descriptor::read(ss);
     }
 
+    /**
+     * Returns the formal size of the given type.
+     *
+     * In the Java Virtual Machine Specification, longs and doubles are considered as having a "size" of 2, while all other types
+     * (e.g. integers, floats, references) are considered as having a "size" of 1.
+     */
     CJBP_INLINE static uint32_t formalSize(Type type) { return type == Type::Void ? 0 : (type == Type::Long || type == Type::Double ? 2 : 1); }
+
+    /**
+     * Converts the operand of a `newarray` instruction into a Descriptor.
+     *
+     * See https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.10.1.9.newarray
+     */
     CJBP_INLINE static constexpr Type fromNewArray(NewArrayType type);
 
     CJBP_INLINE Descriptor() = default;
@@ -76,15 +96,31 @@ CJBP_INLINE constexpr Descriptor::Type Descriptor::fromNewArray(NewArrayType typ
 
 
 
+/**
+ * MethodDescriptor represents a parsed method descriptor in the Java Virtual Machine.
+ *
+ * A raw method descriptor looks like: https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3
+ */
 class MethodDescriptor {
 public:
+    /**
+     * Reads a method descriptor from a string.
+     */
     CJBP_INLINE static MethodDescriptor read(const std::string &s) {
         std::stringstream ss(s);
         return MethodDescriptor::read(ss);
     }
 
     CJBP_INLINE const std::vector<Descriptor> &params() const { return this->parameters_; }
+
+    /**
+     * Returns the total formal size of all parameters.
+     *
+     * In the Java Virtual Machine Specification, longs and doubles are considered as having a "size" of 2, while all other types
+     * (e.g. integers, floats, references) are considered as having a "size" of 1.
+     */
     CJBP_INLINE uint32_t formalParamSize() const { return this->formalParamSize_; }
+
     CJBP_INLINE const Descriptor &returnType() const { return this->returnType_; }
 
     std::string toString() const;

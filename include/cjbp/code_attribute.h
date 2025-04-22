@@ -16,6 +16,9 @@ class ControlFlowGraph;
 class AbsoluteStackMapFrame;
 class StackMapTableAttributeInfo;
 
+/**
+ * CodeAttributeInfo represents the Code attribute of a method.
+ */
 class CodeAttributeInfo : public AttributeInfo {
 public:
     static std::unique_ptr<CodeAttributeInfo> read(std::istream &s, const ConstantPool &constantPool);
@@ -24,7 +27,17 @@ public:
                       std::vector<std::unique_ptr<AttributeInfo>> attributes);
     ~CodeAttributeInfo() override;
 
+    /**
+     * Creates an iterator to step through the code instruction-by-instruction.
+     */
     CodeIterator iterator() const;
+
+    /**
+     * Computes and caches a ControlFlowGraph for the method.
+     *
+     * Note: CFG calculation currently makes use of the StackMapTable attribute. This attribute was introduced in Java 6;
+     * thus, class files compiled with Java 5 may produce incorrect CFGs.
+     */
     ControlFlowGraph *cfg();
 
     CJBP_INLINE uint16_t maxStack() const { return this->maxStack_; }

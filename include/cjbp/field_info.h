@@ -12,10 +12,19 @@
 
 namespace cjbp {
 
+/**
+ * FieldInfo represents a field in a Java class file.
+ */
 class FieldInfo {
 public:
+    /**
+     * Reads a FieldInfo from the given input stream. Intended for internal use only.
+     */
     static std::unique_ptr<FieldInfo> read(std::istream &s, const ConstantPool &constantPool);
 
+    /**
+     * Constructs a FieldInfo object with the given parameters. Intended for internal use only.
+     */
     CJBP_INLINE FieldInfo(uint16_t accessFlags, const std::string &name, const std::string &type, Descriptor descriptor,
                           std::vector<std::unique_ptr<AttributeInfo>> attributes) :
         accessFlags_(accessFlags), name_(name), type_(type), descriptor_(std::move(descriptor)), attributes_(std::move(attributes)) { }

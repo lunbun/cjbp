@@ -15,10 +15,19 @@ namespace cjbp {
 class ClassFile;
 class CodeAttributeInfo;
 
+/**
+ * MethodInfo represents a method in a class file.
+ */
 class MethodInfo {
 public:
+    /**
+     * Reads a MethodInfo from the given input stream. Intended for internal use only.
+     */
     static std::unique_ptr<MethodInfo> read(std::istream &s, const ConstantPool &constantPool);
 
+    /**
+     * Constructs a MethodInfo object. Intended for internal use only.
+     */
     CJBP_INLINE MethodInfo(const ConstantPool &constantPool, uint16_t accessFlags, const std::string &name, const std::string &type,
                            MethodDescriptor descriptor, CodeAttributeInfo *codeAttribute, std::vector<std::unique_ptr<AttributeInfo>> attributes) :
         constantPool_(constantPool), accessFlags_(accessFlags), name_(name), type_(type), descriptor_(std::move(descriptor)),
@@ -42,8 +51,10 @@ public:
     CJBP_INLINE const std::string &name() const { return this->name_; }
     CJBP_INLINE const std::string &type() const { return this->type_; }
     CJBP_INLINE const MethodDescriptor &descriptor() const { return this->descriptor_; }
-    CJBP_INLINE CodeAttributeInfo *code() const { return this->codeAttribute_; }
     CJBP_INLINE const std::vector<std::unique_ptr<AttributeInfo>> &attributes() const { return this->attributes_; }
+
+    /// @return The CodeAttributeInfo of this method. May be nullptr if this method does not have a code attribute (e.g. if abstract or native).
+    CJBP_INLINE CodeAttributeInfo *code() const { return this->codeAttribute_; }
 
     std::string toString(const ConstantPool &constantPool) const;
 

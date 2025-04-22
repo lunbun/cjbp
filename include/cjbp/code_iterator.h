@@ -8,7 +8,12 @@
 
 namespace cjbp {
 
+/**
+ * All opcodes that are defined in the Java Virtual Machine Specification.
+ */
 namespace OpcodeNamespace {
+// The enum is defined this way as a hack to keep the enum inside the `Opcode` namespace while also
+// having it be implicitly convertible to `uint8_t`.
 enum Opcode : uint8_t {
     Nop = 0x00,
     AConstNull = 0x01,
@@ -219,8 +224,11 @@ enum Opcode : uint8_t {
 } // namespace OpcodeNamespace
 using Opcode = OpcodeNamespace::Opcode;
 
+/**
+ * Types for the newarray instruction.
+ */
 namespace NewArrayTypeNamespace {
-enum NewArrayType : uint8_t {  // Types for the newarray instruction
+enum NewArrayType : uint8_t {
     Boolean = 4,
     Char = 5,
     Float = 6,
@@ -233,6 +241,9 @@ enum NewArrayType : uint8_t {  // Types for the newarray instruction
 } // namespace ArrayTypeNamespace
 using NewArrayType = NewArrayTypeNamespace::NewArrayType;
 
+/**
+ * CodeIterator iterates over individual instructions of a CodeAttribute's code array.
+ */
 class CodeIterator {
 public:
     CJBP_INLINE explicit CodeIterator(const uint8_t *code, uint32_t size) : code_(code), size_(size), position_(0) { }
