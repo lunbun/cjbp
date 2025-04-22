@@ -7,6 +7,7 @@ set_target_properties(cjbp_example1 PROPERTIES CXX_STANDARD 17)
 set_target_properties(cjbp_example1 PROPERTIES CXX_EXTENSIONS OFF)
 target_compile_features(cjbp_example1 PRIVATE cxx_std_17)
 
+# TODO: set the path to the cjbp library
 set(cjbp_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake-build-debug")
 find_package(cjbp REQUIRED)
 
