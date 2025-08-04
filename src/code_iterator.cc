@@ -24,7 +24,7 @@ uint32_t CodeIterator::next() {
 
     uint32_t result = this->position_;
     uint8_t opcode = this->code_[result];
-    uint8_t width = OpcodeWidth[opcode];
+    uint8_t width = opcode < sizeof(OpcodeWidth) ? OpcodeWidth[opcode] : 0;
     if (width == 0) {
         if (opcode == Opcode::TableSwitch) {
             uint32_t paddedIndex = (result + 4) & ~0x3;
